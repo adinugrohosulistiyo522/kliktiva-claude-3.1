@@ -1,0 +1,12 @@
+{
+  "name": "kliktiva-bio-affiliate-cloudflare-pages",
+  "version": "3.4.3-cloudflare-pages",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "check": "node scripts/check-pages.mjs",
+    "test": "node --test test/proxy.test.mjs test/worker.test.mjs",
+    "check:all": "npm run check && npm test"
+  }
+}

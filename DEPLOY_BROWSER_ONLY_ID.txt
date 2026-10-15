@@ -1,0 +1,90 @@
+PROJECT BIO AFFILIATE / TOKO v3.4.0
+PANDUAN PEMBARUAN FINAL MELALUI BROWSER — TANPA NODE.JS LOKAL
+
+TUJUAN
+Paket ini dibangun di atas baseline v3.3.0 yang sebelumnya Anda konfirmasi WORK. Koreksi #1–#10 sudah digabungkan. Karena kuota deployment Netlify terbatas, lakukan persiapan backend terlebih dahulu lalu SATU KALI commit semua perubahan frontend/Netlify ke repository GitHub yang sudah terhubung.
+
+PENTING SEBELUM MEMULAI
+- Jangan buat site Netlify baru. Gunakan repository GitHub dan site Netlify produksi yang sekarang.
+- Jangan deploy v3.4.0 ke Netlify sebelum langkah backend Apps Script selesai.
+- Jangan menghapus, mengganti, atau mengosongkan database produksi. Buat backup file Sheets penting terlebih dahulu.
+- Jangan menjalankan setupDatabase(), setupAccountsDatabase(), atau setupAnalyticsDatabase() pada database produksi tanpa kebutuhan/backup. Template XLSX di paket adalah template, bukan instruksi menimpa data lama.
+- Jangan menimpa appsscript.json yang sekarang sudah benar. Scope yang dibutuhkan antara lain script.external_request, spreadsheets, dan drive.
+- Tidak perlu Node.js, Git, command line, atau Netlify CLI di komputer. Semua bisa melalui browser; validasi berjalan di GitHub Actions/Netlify.
+
+BAGIAN A — CADANGKAN BASELINE
+1. Unduh ZIP v3.4.0 dan ekstrak ke folder baru.
+2. Simpan salinan Code.gs dan License_Server.gs yang berjalan sekarang.
+3. Pastikan Anda dapat membuka database Operational, Accounts, Analytics dan License yang sudah ada.
+4. Catat URL Web App /exec dari Apps Script utama, URL License Server /exec, serta environment APPS_SCRIPT_URL yang sudah ada. Jangan membagikan URL/secret ke publik.
+
+BAGIAN B — PEMBARUAN LICENSE SERVER (SEBELUM MAIN BACKEND)
+1. Buka project Apps Script License Server yang saat ini memeriksa kode aktivasi.
+2. Ganti isi file License_Server.gs dengan file `License_Server.gs` dari paket v3.4.0 lalu Simpan.
+3. Periksa Script Properties: LICENSE_SPREADSHEET_ID harus tetap mengarah ke spreadsheet License privat yang sudah dipakai.
+4. Buka Deploy → Manage deployments, edit deployment Web App saat ini, pilih New version, lalu Deploy. Jangan membuat deployment baru jika tidak perlu, agar URL /exec tidak berubah.
+5. Buka spreadsheet License dan periksa kolom `Tampilkan CTA Pemesanan Website`. Jika header belum ada, jalankan `setupLicenseHeaders()` sekali dari editor License Server (setelah backup). Fungsi ini mempertahankan enam kolom inti dan menambahkan kolom CTA; jangan menjalankan bila header enam kolom inti di sheet lama berbeda—backup dan tinjau lebih dulu.
+6. Isi kolom CTA secara MANUAL dengan `YA` atau `TIDAK` pada setiap lisensi. Kosong dianggap tidak menampilkan CTA. Perubahan kolom ini tidak diatur oleh pembeli melalui Admin. Nomor CTA website adalah WhatsApp pemilik paket, 6289693123544.
+
+BAGIAN C — PEMBARUAN APPS SCRIPT UTAMA
+1. Buka project Apps Script utama `PROJECT AFFILIATE` yang dipakai oleh APPS_SCRIPT_URL Netlify.
+2. Ganti SELURUH isi file Code.gs/Kode.gs dengan `Code_GS_Project_Bio_Affiliate_Toko_FINAL_v3.4.0.gs` lalu Simpan. Jangan menimpa appsscript.json.
+3. Periksa Script Properties, jangan ubah jika sudah benar:
+   - MAIN_SPREADSHEET_ID — database operational
+   - ACCOUNTS_SPREADSHEET_ID — database akun privat
+   - ANALYTICS_SPREADSHEET_ID — database Analytics privat
+   - DRIVE_UPLOAD_FOLDER_ID — folder gambar
+   - LICENSE_API_URL — URL License Server /exec
+4. Jalankan `authorizeExternalRequestScope()` dari dropdown fungsi dan setujui izin Google yang diminta jika sesuai.
+5. Jalankan `diagnoseLicenseServerConnection()`. Log seharusnya menunjukkan HTTP_STATUS=200 dan body JSON. Tes ini memakai kode dummy; tidak mengaktifkan lisensi.
+6. Buka Deploy → Manage deployments. Edit deployment Web App yang sedang digunakan, pilih New version dan Deploy. Pertahankan URL /exec lama.
+7. Jika URL /exec tetap sama, environment variable APPS_SCRIPT_URL di Netlify tidak perlu diubah. Jika URL berubah, update environment variable hanya sebelum satu commit/deployment frontend, lalu periksa nilainya dengan hati-hati.
+
+BAGIAN D — SATU KALI COMMIT KE GITHUB
+1. Buka repository privat `Project-Bio-Affiliate-Toko` yang sudah dihubungkan ke site Netlify produksi.
+2. Ekstrak ZIP v3.4.0. Jangan unggah ZIP sebagai satu file.
+3. Gunakan Add file → Upload files di GitHub, lalu unggah/perbarui file sesuai struktur paket. Pertahankan lokasi `public/`, `netlify/functions/`, `scripts/`, dan `.github/workflows/`.
+4. Sertakan semua perubahan terkait dalam SATU KALI Commit changes pada branch produksi. Jangan mengunggah file rahasia, token, password, atau data lisensi privat ke GitHub.
+5. Buka tab Actions dan tunggu workflow validasi selesai. Jika gagal, jangan memicu Netlify deployment manual; baca log terlebih dahulu.
+
+BAGIAN E — SATU DEPLOYMENT NETLIFY
+1. Commit pada branch yang terhubung akan memicu deployment otomatis. Jangan membuat site baru.
+2. Pastikan netlify.toml tetap menggunakan Publish directory `public` dan Functions directory `netlify/functions`.
+3. Environment variable APPS_SCRIPT_URL tetap menunjuk ke Apps Script utama /exec. Jangan masukkan ID/token privat pada source front-end.
+4. Tunggu deployment Netlify berstatus Published. Jangan tekan Trigger deploy lagi apabila commit sudah memulai deployment.
+
+BAGIAN F — CHECKLIST PENGUJIAN LIVE
+Lisensi/idle:
+- Buka public site dan biarkan idle lebih dari 5 menit. Website tidak boleh mengunci hanya karena status jaringan sementara; harus mencoba refresh status dan katalog otomatis.
+- Uji lisensi aktif saat License Server dapat diakses. Uji lisensi yang benar-benar expired dengan kode uji yang aman pada lingkungan terkontrol; expiry nyata tetap harus memblokir.
+
+Analytics:
+- Pastikan event baru tampil di Analytics_Events.
+- Pilih tanggal `12/10/2026` hingga `12/10/2026` pada UI. Untuk data contoh di spreadsheet, angka Page Views, klik affiliate, koleksi, dan sosial harus sesuai event pada tanggal tersebut.
+- Periksa rentang beberapa hari, tombol Reset, tren harian dan tabel top product/collection/social. Tanggal UI harus `DD/MM/YYYY`; tanggal internal dapat ISO `YYYY-MM-DD`.
+- Pastikan Analytics_Daily tidak terus menumpuk baris untuk EventDate yang sama; unique visitor dihitung unik per VisitorID per hari.
+
+Urutan koleksi:
+- Ubah urutan koleksi melalui Admin, simpan, refresh public site dan login lagi. Urutan publik harus sama.
+
+Startup dan preview:
+- Public shell/branding/tab terlihat segera; hanya area katalog yang menampilkan skeleton/loader lokal saat data diambil.
+- Pada desktop, preview public tampil di sisi kanan Admin. Pada mobile, preview harus berupa layout public versi mobile, diakses melalui toggle bila perlu. Tombol atas membuka public site di tab baru.
+
+CTA License:
+- Isi kolom License dengan YA: CTA kecil muncul dengan link WhatsApp 6289693123544. Isi TIDAK atau kosong: CTA tidak muncul.
+- Pastikan tidak ada pengaturan CTA pelanggan di halaman Admin. Di desktop CTA di kanan bawah; di mobile di kiri bawah.
+
+Penyimpanan:
+- Simpan identitas, produk, koleksi, akun dan urutan. UI harus responsif dan notifikasi non-blocking muncul. Pastikan tidak ada full refresh data yang menghapus draft lain.
+- Klik Terapkan Filter Analytics; tombol menunjukkan indikator Memproses… yang ringan lalu kembali normal saat selesai.
+
+BILA ADA ERROR
+- Jangan berulang kali commit/deploy. Catat pesan error dan screenshot, kemudian diagnosa penyebabnya terlebih dahulu.
+- Bila Analytics masih nol, cek event EventDate (kolom C), EventType (kolom D), serta Script Property ANALYTICS_SPREADSHEET_ID.
+- Bila CTA tidak muncul, periksa status YA pada record kode aktivasi yang tepat dan tunggu cache 5 detik/refresh.
+- Bila thumbnail marketplace kosong, marketplace mungkin membatasi metadata; gunakan gambar manual. Ini perilaku fallback, bukan alasan untuk menampilkan broken image.
+- Bila Drive menolak public sharing, cek pengaturan akses file/folder dan kebijakan Google Workspace.
+
+BATAS VALIDASI
+Paket ini divalidasi secara lokal melalui pemeriksaan sintaks, kontrak action frontend/backend, helper analytics/date parsing, CTA License, struktur workbook dan skenario simulasi. Ini bukan bukti bahwa semua alur sudah diuji pada akun Google/Netlify produksi Anda. Selesaikan checklist live sebelum menganggap siap public.

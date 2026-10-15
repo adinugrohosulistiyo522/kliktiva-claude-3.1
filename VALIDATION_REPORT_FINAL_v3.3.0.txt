@@ -1,0 +1,45 @@
+PROJECT BIO AFFILIATE / TOKO — VALIDATION REPORT v3.3.0
+Tanggal: 12 Oktober 2026
+Lingkup: pemeriksaan kode/struktur lokal, simulasi helper, dan kontrak API. Belum merupakan uji end-to-end akun live.
+
+Perintah yang dijalankan di lingkungan validasi:
+
+> project-bio-affiliate-toko-final@3.3.0 check:all
+> npm run check && npm run check:function
+
+PASS syntax: Code.gs
+PASS syntax: License_Server.gs
+PASS syntax: public/admin.html inline script 1
+PASS syntax: public/index.html inline script 1
+PASS syntax: netlify/functions/api.mjs
+PASS API contract: 20 actions aligned between Apps Script and Netlify Function
+PASS UI contract: 18 UI actions are in allowlist
+PASS thumbnail marketplace allowlist, safe redirect checks, metadata extraction and relative-image resolution
+PASS analytics stable IDs, per-day visitor counting, date filtering and current-title lookup
+PASS public Collection-first navigation, localized labels/counts, clean image fallback, hover and configurable CTA
+PASS non-blocking messages, graceful API error handling and unsaved-edit fingerprinting
+PASS explicit product-list load flow, collection filtering/order, and internal scroll/sticky table headers for the four Admin tabs
+PASS separate databases, SYSTEM_ADMIN enforcement, thumbnail caching, and API proxy
+PASS release package, database workbook templates, deployment guide and GitHub workflow present
+
+All 14 validation checks passed.
+
+> project-bio-affiliate-toko-final@3.3.0 check:function
+> node --check netlify/functions/api.mjs
+
+VALIDASI YANG DILAKUKAN
+- Sintaks JavaScript/Apps Script di-parse.
+- Semua 20 backend actions cocok dengan allowlist Netlify Function.
+- Semua 18 actions yang dipakai UI diizinkan oleh allowlist.
+- Simulasi thumbnail Shopee memeriksa redirect HTTPS pada host yang diizinkan, blokir domain tiruan, metadata og:image, dan URL gambar relatif.
+- Helper Analytics memeriksa unique visitor-day, label/nama produk legacy yang tidak ambigu, dan pemetaan ProductID.
+- Struktur front-end memeriksa fallback gambar, tab Collection default, count koleksi, CTA, hover, serta tidak adanya pemutar musik YouTube.
+- Flow pengurutan produk harus mempunyai tombol Tampilkan Produk, loading/empty/error states, tepat satu listener Simpan Urutan, dan fingerprint draft tidak menjadikan perubahan pilihan koleksi sebagai edit tertunda.
+- Tabel Katalog Produk, Koleksi, Tampilan, dan Management Akun memiliki scroll internal dengan header sticky.
+
+BATAS VALIDASI
+- Tidak dilakukan login ke akun Google pemilik atau panggilan nyata ke Google Apps Script/Sheets/Drive, marketplace, maupun domain Netlify live.
+- Karena itu, file siap untuk proses deployment dan pengujian produksi, namun belum dapat dinyatakan bebas bug/live-verified sebelum checklist deployment selesai.
+- Metadata thumbnail marketplace adalah best-effort; jika host memblokir metadata, gunakan gambar manual dan placeholder tampil sebagai fallback.
+- Event Analytics lama yang hanya menyimpan nama produk tanpa ID/map yang pasti tidak dapat dipetakan secara akurat jika ambigu.
+- Sebelum deploy: replace Code.gs pada Apps Script yang dipakai, jalankan authorizeExternalRequestScope dan diagnoseLicenseServerConnection, update deployment Web App yang sama ke New version (pertahankan URL /exec), lalu lakukan satu commit GitHub untuk frontend/proxy dan tunggu satu deployment Netlify otomatis.

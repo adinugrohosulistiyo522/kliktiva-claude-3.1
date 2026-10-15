@@ -1,0 +1,44 @@
+PROJECT BIO AFFILIATE / TOKO v3.4.0 — VALIDATION REPORT
+Baseline: v3.3.0 (user-confirmed working)
+Date: 12 October 2026
+Scope: new correction set #1–#10 implemented on top of v3.3.0.
+
+AUTOMATED VALIDATION
+The project's `npm run check:all` completed successfully. It runs `scripts/validate.mjs` and `node --check netlify/functions/api.mjs`.
+
+All 18 validation checks passed, including:
+1. Syntax compilation for Code.gs and License_Server.gs.
+2. Inline JavaScript syntax in public/admin and public site HTML.
+3. Netlify Function syntax.
+4. Exact alignment of all 22 backend action names with the Netlify allowlist.
+5. All 20 API actions invoked by public/admin UI are allowlisted.
+6. Affiliate-thumbnail source allowlist, safe redirect handling, og:image parsing and relative URL resolution fixture.
+7. Analytics stable ID/legacy-name lookup and per-visitor-per-day counting helpers.
+8. Execution of the Analytics dashboard aggregator against fixture rows patterned after Analytics_Events, verifying inclusive date ranges, daily uniqueness, current product label, and DD/MM/YYYY trend labels.
+9. Localized Indonesian date conversion and invalid-date rejection.
+10. License CTA behavior tested against License Server verifier: YA => shown, TIDAK/blank => hidden.
+11. Public-site Collection-first navigation and collection count labels.
+12. Image fallback behavior including Google Drive URL candidate cycling and broken-image placeholder.
+13. CTA is not editable in customer Admin; owner WhatsApp and responsive position checks pass.
+14. Admin toast/error state and draft fingerprint logic; no blocking `alert()` calls.
+15. Explicit “Tampilkan Produk” load flow and loading/empty/error states.
+16. Scrollable/sticky table header checks for Katalog Produk, Koleksi, Tampilan, and Management Akun.
+17. Persisted collection order behavior tested with a fake sheet and single-range write; Analytics event aggregation and License behavior are covered by fixtures.
+18. Release templates, package version, deployment guide, and GitHub workflow are present.
+
+SOURCE PACKAGE CHECKS
+- Package version: 3.4.0.
+- Public startup reveals the site shell immediately; only catalog region has a local loading state.
+- Public license/data refresh is scheduled every five minutes and retries transient network problems instead of treating them as a confirmed expired license; actual inactive/expired outcomes still gate the public site.
+- Admin save paths include batch Settings writes, bulk order writes, upload-before-lock behavior, and local UI updates without an all-data reload after each save.
+- License template includes `Tampilkan CTA Pemesanan Website` with manual YA/TIDAK control; empty defaults to hidden.
+- The latest standalone validation run output is generated as part of the packaging workflow.
+
+IMPORTANT LIMITATION
+These are automated local syntax, static-contract, and fixture/mock behavior checks. They do NOT establish that every live request succeeds against the user's current Google Sheets, Apps Script deployments, Drive sharing policy, or Netlify production account. No live production account credentials were available to run an end-to-end test. Therefore zero bugs cannot be guaranteed. Follow `DEPLOY_BROWSER_ONLY_FINAL_v3.4.0.txt` and complete its production checklist after the single planned deployment.
+
+KNOWN EXTERNAL DEPENDENCIES
+- Marketplace thumbnails are best-effort; source platform access or metadata can be blocked. Use manual image as fallback.
+- Google Drive images require a shareable viewer URL accepted by the account's sharing policy.
+- Browser-based visitor identity is estimated; changing browser/device or clearing site storage may create a new visitor ID.
+- Accounts database retains plaintext password values per the previously requested schema; tightly restrict spreadsheet permissions.

@@ -1,0 +1,32 @@
+PROJECT BIO AFFILIATE / TOKO — ANALYTICS OPTIMIZATION (PERUBAHAN #1)
+
+Perubahan utama ada di Code.gs. public/admin.html tidak perlu diubah.
+
+MEKANISME
+- Event mentah di Analytics_Events tetap dipertahankan sebagai sumber historis.
+- Setup memasang trigger Apps Script setiap 5 menit untuk refresh agregasi.
+- Worker memakai cursor baris sumber dan memproses rentang baru; ia hanya membangun ulang tanggal yang terdampak, bukan seluruh histori setiap filter.
+- Agregasi disimpan per bulan dalam sheet dinamis bernama Analytics_Agg_YYYY_MM.
+- Hasil filter disimpan sementara di CacheService selama 180 detik (3 menit), dengan versi agregasi pada cache key agar hasil diperbarui setelah refresh berhasil.
+- Visitor unik tetap dihitung berbeda per tanggal dan per jam WIB. Event mentah tidak dihapus.
+- Selama bootstrap historis belum selesai, dashboard tetap memakai jalur pembacaan event lama agar hasil tidak kosong. Setelah status ready, dashboard beralih ke agregasi.
+
+LANGKAH PENERAPAN
+1. Backup source Code.gs saat ini.
+2. Ganti isi Code.gs dengan versi hasil optimasi, lalu Save.
+3. Di Apps Script editor, pilih fungsi setupAnalyticsAggregation lalu klik Run. Berikan izin yang diminta. Fungsi ini memasang trigger refreshAnalyticsAggregation setiap 5 menit dan langsung menjalankan pemrosesan awal.
+4. Untuk melihat progres, jalankan getAnalyticsAggregationStatus. Jika ready=false, backfill belum selesai; trigger akan melanjutkan secara berkala. Fungsi refreshAnalyticsAggregation dapat dijalankan manual untuk melanjutkan lebih cepat. Jangan menghapus sheet Analytics_Agg_YYYY_MM atau Script Properties ANALYTICS_AGGREGATION_*.
+5. Setelah kode tersimpan, perbarui deployment Web App ke versi baru (Manage deployments > Edit > New version) agar endpoint adminGetAnalytics memakai kode baru. Pertahankan URL deployment yang sudah digunakan Netlify.
+6. Setelah getAnalyticsAggregationStatus menunjukkan ready=true, uji filter Hari ini, Kemarin, 7 Hari, 30 Hari, dan rentang manual. Cocokkan KPI, tabel, grafik klik per jam, dan grafik visitor per jam dengan data historis.
+
+KESEGARAN DATA DAN CACHE
+- Cache hasil filter: 180 detik.
+- Agregasi terjadwal: setiap 5 menit; perubahan baru dapat terlihat setelah refresh berjalan.
+- Cache bersifat optimasi, bukan penyimpanan utama. Jika cache kosong atau gagal, dashboard tetap membaca agregasi yang tersimpan.
+- Trigger Apps Script dijalankan berdasarkan jadwal, namun waktu mulai/selesai tidak dijamin tepat pada menit yang sama.
+
+PEMULIHAN DAN KEAMANAN DATA
+- Proses pembaruan mengganti bucket tanggal yang terdampak, bukan menambahkan delta berulang, sehingga retry tidak menggandakan jumlah.
+- Cursor baru disimpan setelah penulisan agregasi sukses. Bila proses gagal sebelum checkpoint, batch yang sama dapat diproses ulang.
+- Analytics_Events tetap menjadi sumber kebenaran; jangan menghapus atau mengedit event historis manual saat refresh berjalan.
+- Setup bersifat idempotent: menjalankannya ulang tidak mereset cursor yang sudah ada dan tidak memasang trigger duplikat.

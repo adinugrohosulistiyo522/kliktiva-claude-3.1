@@ -1,0 +1,40 @@
+PROJECT BIO AFFILIATE / TOKO v3.4.0 — RELEASE NOTES
+Basis: baseline v3.3.0, dilaporkan pengguna WORK.
+Jenis rilis: batch koreksi terintegrasi; browser-only deploy; tanpa Node.js lokal.
+
+Koreksi #1 — License heartbeat
+- Public site memeriksa lisensi dan katalog tiap 5 menit; saat tab kembali terlihat, pemeriksaan tertunda dijalankan.
+- Gangguan jaringan sementara ditangani sebagai retry; status expired/inactive yang secara eksplisit dikonfirmasi tetap memblokir.
+
+Koreksi #2 — Analytics dashboard
+- Dashboard memakai log Analytics_Events untuk agregasi metrik yang dipilih, bukan mengandalkan Daily yang mungkin memiliki beberapa baris per tanggal.
+- Menormalkan EventDate dari Sheets Date / ISO text / format tanggal yang didukung.
+- Mengkonsolidasikan Daily rows tanggal sama dan menyinkronkan pengunjung unik per hari.
+
+Koreksi #3 — Format tanggal Indonesia
+- Field dan label tanggal UI memakai DD/MM/YYYY, dengan normalisasi ISO internal untuk backend.
+
+Koreksi #4 — Urutan koleksi
+- Admin mempunyai daftar pengurutan koleksi yang persisten, dan public Collection mengikuti urutan yang disimpan.
+
+Koreksi #5 — Public startup UX
+- Shell, branding, navigasi dan area non-katalog ditampilkan tanpa menunggu katalog; loading/skeleton hanya lokal pada katalog.
+
+Koreksi #6 — Live Preview dan tombol public
+- Preview public desktop berada di sisi kanan; preview memakai viewport mobile 390px dan bisa di-toggle di layar kecil.
+- Tombol header Admin membuka public site di tab browser baru.
+
+Koreksi #7 — Save performance
+- Profile settings ditulis batch, file gambar diproses sebelum global Sheets lock, beberapa urutan ditulis melalui bulk range, dan akun diperbarui lokal setelah server mengonfirmasi.
+
+Koreksi #8 — CTA responsive
+- CTA kecil di kanan-bawah desktop, kiri-bawah mobile.
+
+Koreksi #9 — License-controlled CTA
+- Pengaturan CTA pelanggan dihapus dari Admin; kolom License manual `Tampilkan CTA Pemesanan Website` berisi YA/TIDAK mengatur visibilitas. Nomor WhatsApp pemilik sistem 6289693123544.
+
+Koreksi #10 — Loading filter Analytics
+- Tombol Terapkan Filter menampilkan spinner kecil dan Memproses…, mencegah submit ganda, tanpa overlay layar penuh.
+
+CATATAN VALIDASI
+Validasi lokal memeriksa sintaks, kontrak action, beberapa helper dan alur simulasi; bukan uji live end-to-end. Baca laporan validasi sebelum deployment dan jalankan checklist produksi di panduan browser.
