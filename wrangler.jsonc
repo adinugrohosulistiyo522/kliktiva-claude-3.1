@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "kliktiva-bio-claude-v3.1",
+  "name": "kliktiva-bio-claude-v3-1",
   "main": "src/index.js",
   "compatibility_date": "2025-10-01",
   "assets": {
